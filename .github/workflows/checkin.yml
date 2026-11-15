@@ -1,0 +1,52 @@
+name: mihoyo-checkin
+
+on:
+  schedule:
+    - cron: "30 23 * * *"   # UTC 23:30 = 北京时间 07:30
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: checkin
+  cancel-in-progress: false
+
+jobs:
+  sign:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 签到
+        env:
+          COOKIE_JSON_B64: ${{ secrets.COOKIE_JSON_B64 }}
+        run: python3 checkin.py
+
+      - name: 提交记录
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add history.json docs/index.html
+          git diff --cached --quiet || git commit -m "checkin $(date -u +%F)"
+          git push
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  deploy:
+    needs: sign
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
