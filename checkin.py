@@ -31,6 +31,16 @@ BINDING_URL = "https://api-takumi.mihoyo.com/binding/api/getUserGameRolesByCooki
 CTX = ssl.create_default_context()
 
 
+def mask(s):
+    s = str(s or "")
+    return (s[0] + "***") if len(s) > 1 else s
+
+
+def mask_uid(u):
+    u = str(u or "")
+    return (u[:3] + "****" + u[-2:]) if len(u) > 7 else u
+
+
 def md5(s):
     return hashlib.md5(s.encode()).hexdigest()
 
@@ -95,9 +105,9 @@ def main():
             res = request(host + prefix + "/sign", cookie, dev, body=body, signgame=SIGNGAME[biz])
             rc = res.get("retcode")
             if rc not in (0, -5003):
-                print(f"[FAIL] {name} {nick} {rc} {res.get('message')}")
-                records.append({"date": time.strftime("%Y-%m-%d"), "game": name, "nick": nick,
-                                "uid": uid, "ok": False, "error": f"{rc} {res.get('message')}"})
+                print(f"[FAIL] {name} {mask(nick)} {rc} {res.get('message')}")
+                records.append({"date": time.strftime("%Y-%m-%d"), "game": name, "nick": mask(nick),
+                                "uid": mask_uid(uid), "ok": False, "error": f"{rc} {res.get('message')}"})
                 continue
             time.sleep(random.randint(2, 4))
             qi = urllib.parse.urlencode({"act_id": act_id, "region": region, "uid": uid, "lang": "zh-cn"})
@@ -109,9 +119,9 @@ def main():
                 a = awards[day - 1]
                 award = f"{a.get('name')}×{a.get('cnt')}"
             ok = bool(info.get("is_sign"))
-            print(f"[{'OK' if ok else 'NG'}] {name} {nick} 第{day}天 {award}")
-            records.append({"date": time.strftime("%Y-%m-%d"), "game": name, "nick": nick,
-                            "uid": uid, "ok": ok, "day": day, "award": award,
+            print(f"[{'OK' if ok else 'NG'}] {name} {mask(nick)} 第{day}天 {award}")
+            records.append({"date": time.strftime("%Y-%m-%d"), "game": name, "nick": mask(nick),
+                            "uid": mask_uid(uid), "ok": ok, "day": day, "award": award,
                             "signed_now": rc == 0})
 
     try:
