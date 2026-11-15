@@ -27,6 +27,8 @@ jobs:
       - name: 签到
         env:
           COOKIE_JSON_B64: ${{ secrets.COOKIE_JSON_B64 }}
+          COOKIE_JSON_B64_2: ${{ secrets.COOKIE_JSON_B64_2 }}
+          COOKIE_JSON_B64_3: ${{ secrets.COOKIE_JSON_B64_3 }}
         run: python3 checkin.py
 
       - name: 提交记录

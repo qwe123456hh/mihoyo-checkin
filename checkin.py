@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""米游社每日签到（GitHub Actions 版）
+"""米游社每日签到（GitHub Actions 版，支持多账号）
 
 环境变量:
-  COOKIE_JSON_B64  cookie.json 的 base64（存仓库 Secret）
-  GITHUB_REPOSITORY 由 Actions 注入，用于生成页面标题（可选）
+  COOKIE_JSON_B64    1 号账号 cookie.json 的 base64（必须）
+  COOKIE_JSON_B64_2  2 号账号（可选，最多到 _5）
+  CI 环境下也可把 cookie.json 放在仓库根目录（不推荐）
 
 产出:
   history.json     累计签到记录
@@ -16,6 +17,7 @@ APP_VERSION = "2.117.0"
 UA = ("Mozilla/5.0 (Linux; Android 12; Unspecified Device) AppleWebKit/537.36 (KHTML, like Gecko) "
       "Version/4.0 Chrome/103.0.5060.129 Mobile Safari/537.36 miHoYoBBS/" + APP_VERSION)
 SALT_X6 = "t0qEgfub6cvueAPgR5m9aQWWVciEer7v"
+MAX_ACCOUNTS = 5
 
 GAMES = {
     "hk4e_cn": ("原神", "e202311201442471", "https://api-takumi.mihoyo.com", "/event/luna"),
@@ -51,16 +53,30 @@ def ds2(query="", body=""):
     return f"{t},{r},{md5(f'salt={SALT_X6}&t={t}&r={r}&b={body}&q={query}')}"
 
 
-def load_account():
-    raw = os.environ.get("COOKIE_JSON_B64")
-    if raw:
-        data = json.loads(base64.b64decode(raw))
-    else:
-        with open("cookie.json") as f:
-            data = json.load(f)
-    cookie = ";".join(f"{k}={v}" for k, v in (data.get("cookies") or {}).items())
-    dev = data.get("device") or ("8" + md5(cookie)[:15])
-    return cookie, dev
+def load_accounts():
+    accs = []
+    for i in range(1, MAX_ACCOUNTS + 1):
+        key = "COOKIE_JSON_B64" if i == 1 else f"COOKIE_JSON_B64_{i}"
+        raw = os.environ.get(key)
+        data = None
+        if raw:
+            try:
+                data = json.loads(base64.b64decode(raw))
+            except Exception as e:
+                print(f"[WARN] {key} 解码失败: {e}")
+        elif i == 1 and os.path.exists("cookie.json"):
+            with open("cookie.json") as f:
+                data = json.load(f)
+        if not data:
+            continue
+        cookie = ";".join(f"{k}={v}" for k, v in (data.get("cookies") or {}).items())
+        dev = data.get("device") or ("8" + md5(cookie)[:15])
+        aid = str((data.get("user") or {}).get("aid") or "")
+        label = f"账号{i}" + (f"·{mask_uid(aid)}" if aid else "")
+        accs.append({"label": label, "cookie": cookie, "dev": dev})
+    if not accs:
+        raise SystemExit("没有可用账号：缺少 COOKIE_JSON_B64")
+    return accs
 
 
 def request(url, cookie, dev, body=None, query="", signgame=None):
@@ -84,10 +100,8 @@ def request(url, cookie, dev, body=None, query="", signgame=None):
         return {"retcode": -9999, "message": f"网络错误 {e}"}
 
 
-def main():
-    print("run at", time.strftime("%Y-%m-%d %H:%M:%S"))
-    cookie, dev = load_account()
-    records = []
+def sign_account(acc, records):
+    cookie, dev, label = acc["cookie"], acc["dev"], acc["label"]
     for biz in GAMES:
         name, act_id, host, prefix = GAMES[biz]
         q = urllib.parse.urlencode({"game_biz": biz, "lang": "zh-cn"})
@@ -105,9 +119,10 @@ def main():
             res = request(host + prefix + "/sign", cookie, dev, body=body, signgame=SIGNGAME[biz])
             rc = res.get("retcode")
             if rc not in (0, -5003):
-                print(f"[FAIL] {name} {mask(nick)} {rc} {res.get('message')}")
-                records.append({"date": time.strftime("%Y-%m-%d"), "game": name, "nick": mask(nick),
-                                "uid": mask_uid(uid), "ok": False, "error": f"{rc} {res.get('message')}"})
+                print(f"[FAIL] {label} {name} {mask(nick)} {rc} {res.get('message')}")
+                records.append({"date": time.strftime("%Y-%m-%d"), "account": label, "game": name,
+                                "nick": mask(nick), "uid": mask_uid(uid), "ok": False,
+                                "error": f"{rc} {res.get('message')}"})
                 continue
             time.sleep(random.randint(2, 4))
             qi = urllib.parse.urlencode({"act_id": act_id, "region": region, "uid": uid, "lang": "zh-cn"})
@@ -119,10 +134,23 @@ def main():
                 a = awards[day - 1]
                 award = f"{a.get('name')}×{a.get('cnt')}"
             ok = bool(info.get("is_sign"))
-            print(f"[{'OK' if ok else 'NG'}] {name} {mask(nick)} 第{day}天 {award}")
-            records.append({"date": time.strftime("%Y-%m-%d"), "game": name, "nick": mask(nick),
-                            "uid": mask_uid(uid), "ok": ok, "day": day, "award": award,
-                            "signed_now": rc == 0})
+            print(f"[{'OK' if ok else 'NG'}] {label} {name} {mask(nick)} 第{day}天 {award}")
+            records.append({"date": time.strftime("%Y-%m-%d"), "account": label, "game": name,
+                            "nick": mask(nick), "uid": mask_uid(uid), "ok": ok, "day": day,
+                            "award": award, "signed_now": rc == 0})
+
+
+def main():
+    print("run at", time.strftime("%Y-%m-%d %H:%M:%S"))
+    accounts = load_accounts()
+    print(f"accounts: {len(accounts)}")
+    records = []
+    for acc in accounts:
+        try:
+            sign_account(acc, records)
+        except Exception as e:
+            print(f"[ERR] {acc['label']} {e}")
+        time.sleep(random.randint(2, 5))
 
     try:
         with open("history.json") as f:
@@ -135,10 +163,7 @@ def main():
     with open("history.json", "w") as f:
         json.dump(hist, f, ensure_ascii=False, indent=1)
     build_page(hist)
-    if any(r.get("ok") for r in records):
-        return 0
-    print("no role signed / cookie may be invalid")
-    return 1
+    return 0 if any(r.get("ok") for r in records) else 1
 
 
 CSS = """
@@ -149,8 +174,9 @@ h1{font-size:19px;margin:0 0 4px}.sub{color:#8b939d;font-size:12px;margin-bottom
 .name{font-weight:600;font-size:16px}.nick{color:#8b939d;font-size:12px}
 .big{font-size:26px;font-weight:700;color:#7dd3a0}.big span{font-size:13px;color:#8b939d;font-weight:400;margin-left:4px}
 .award{margin-top:6px;color:#e8c46a;font-size:14px}
-.row{display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid #232a33;font-size:13px}
-.row:first-of-type{border-top:none}.d{color:#8b939d}.a{color:#cfd4da}
+.row{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid #232a33;font-size:13px}
+.row:first-of-type{border-top:none}.d{color:#8b939d;white-space:nowrap}.a{color:#cfd4da;text-align:right}
+.acc{color:#6ea8ff}
 .foot{margin-top:18px;color:#5f6873;font-size:11px;text-align:center}
 """
 
@@ -163,18 +189,20 @@ def build_page(hist):
         games.setdefault(h.get("game", "?"), []).append(h)
     cards = []
     for name, rows in games.items():
-        rows.sort(key=lambda x: x.get("date", ""), reverse=True)
+        rows.sort(key=lambda x: (x.get("date", ""), x.get("account", "")), reverse=True)
         latest = rows[0]
-        signed_today = any(r.get("date") == today and r.get("ok") for r in rows)
+        signed_today = [r for r in rows if r.get("date") == today and r.get("ok")]
+        head = f"今天已签 {len(signed_today)} 个角色" if signed_today else "今天还没签到"
         items = "".join(
-            f'<div class="row"><span class="d">{r.get("date","")}</span>'
-            f'<span class="a">第{r.get("day","?")}天 · {r.get("award") or "—"}</span></div>'
-            for r in rows[:7])
+            f'<div class="row"><span class="d">{r.get("date","")[5:]}</span>'
+            f'<span class="a"><span class="acc">{r.get("account","")}</span> {r.get("nick","")} · '
+            f'第{r.get("day","?")}天 · {r.get("award") or "—"}</span></div>'
+            for r in rows[:8])
         cards.append(f"""
 <div class="card">
-  <div class="game"><div class="name">{name}</div><div class="nick">{latest.get("nick","")}</div></div>
+  <div class="game"><div class="name">{name}</div><div class="nick">{head}</div></div>
   <div class="big">{latest.get("day","?")}<span>本月已签（天）</span></div>
-  <div class="award">{"今天已签到" if signed_today else "今天还没签到"} · 今日奖励 {latest.get("award") or "—"}</div>
+  <div class="award">{head} · 最新奖励 {latest.get("award") or "—"}</div>
   <div style="margin-top:8px">{items}</div>
 </div>""")
     if not cards:

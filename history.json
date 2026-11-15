@@ -1,22 +1,24 @@
 [
  {
-  "date": "2026-11-15",
+  "date": "2026-11-16",
+  "account": "账号1·230****96",
   "game": "原神",
   "nick": "K***",
   "uid": "137****87",
   "ok": true,
-  "day": 1,
-  "award": "冒险家的经验×3",
-  "signed_now": false
+  "day": 2,
+  "award": "精锻用良矿×3",
+  "signed_now": true
  },
  {
-  "date": "2026-11-15",
+  "date": "2026-11-16",
+  "account": "账号1·230****96",
   "game": "崩坏：星穹铁道",
   "nick": "觉***",
   "uid": "127****08",
   "ok": true,
-  "day": 1,
-  "award": "冒险记录×2",
-  "signed_now": false
+  "day": 2,
+  "award": "凝缩以太×1",
+  "signed_now": true
  }
 ]
