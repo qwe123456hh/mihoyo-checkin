@@ -61,9 +61,9 @@
   "nick": "K***",
   "uid": "137****87",
   "ok": true,
-  "day": 2,
-  "award": "精锻用良矿×3",
-  "signed_now": false
+  "day": 3,
+  "award": "摩拉×5000",
+  "signed_now": true
  },
  {
   "date": "2026-11-16",
@@ -72,9 +72,9 @@
   "nick": "觉***",
   "uid": "127****08",
   "ok": true,
-  "day": 2,
-  "award": "凝缩以太×1",
-  "signed_now": false
+  "day": 3,
+  "award": "信用点×5000",
+  "signed_now": true
  },
  {
   "date": "2026-11-16",
@@ -83,8 +83,8 @@
   "nick": "芜",
   "uid": "174****99",
   "ok": true,
-  "day": 1,
-  "award": "冒险记录×2",
+  "day": 2,
+  "award": "凝缩以太×1",
   "signed_now": false
  },
  {
@@ -94,8 +94,8 @@
   "nick": "天***",
   "uid": "271****38",
   "ok": true,
-  "day": 2,
-  "award": "精锻用良矿×3",
+  "day": 3,
+  "award": "摩拉×5000",
   "signed_now": false
  },
  {
@@ -105,8 +105,8 @@
   "nick": "克***",
   "uid": "116****23",
   "ok": true,
-  "day": 2,
-  "award": "凝缩以太×1",
+  "day": 3,
+  "award": "信用点×5000",
   "signed_now": false
  }
 ]
