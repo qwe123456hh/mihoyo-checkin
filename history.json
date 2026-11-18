@@ -163,5 +163,38 @@
   "day": 4,
   "award": "罐装快乐水×1",
   "signed_now": false
+ },
+ {
+  "date": "2026-11-18",
+  "account": "账号2·473****48",
+  "game": "崩坏：星穹铁道",
+  "nick": "芜",
+  "uid": "174****99",
+  "ok": true,
+  "day": 4,
+  "award": "罐装快乐水×1",
+  "signed_now": false
+ },
+ {
+  "date": "2026-11-18",
+  "account": "账号3·373****25",
+  "game": "原神",
+  "nick": "天***",
+  "uid": "271****38",
+  "ok": true,
+  "day": 5,
+  "award": "甜甜花酿鸡×3",
+  "signed_now": false
+ },
+ {
+  "date": "2026-11-18",
+  "account": "账号3·373****25",
+  "game": "崩坏：星穹铁道",
+  "nick": "克***",
+  "uid": "116****23",
+  "ok": true,
+  "day": 5,
+  "award": "星琼×20",
+  "signed_now": false
  }
 ]
