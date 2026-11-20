@@ -237,9 +237,9 @@
   "nick": "芜",
   "uid": "174****99",
   "ok": true,
-  "day": 5,
-  "award": "星琼×20",
-  "signed_now": false
+  "day": 6,
+  "award": "冒险记录×2",
+  "signed_now": true
  },
  {
   "date": "2026-11-20",
@@ -248,8 +248,8 @@
   "nick": "天***",
   "uid": "271****38",
   "ok": true,
-  "day": 6,
-  "award": "冒险家的经验×2",
+  "day": 7,
+  "award": "摩拉×8000",
   "signed_now": false
  },
  {
@@ -259,8 +259,8 @@
   "nick": "克***",
   "uid": "116****23",
   "ok": true,
-  "day": 6,
-  "award": "冒险记录×2",
+  "day": 7,
+  "award": "凝缩以太×1",
   "signed_now": false
  }
 ]
