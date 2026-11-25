@@ -394,5 +394,38 @@
   "day": 11,
   "award": "遗失碎金×2",
   "signed_now": false
+ },
+ {
+  "date": "2026-11-25",
+  "account": "账号1·473****48",
+  "game": "崩坏：星穹铁道",
+  "nick": "芜",
+  "uid": "174****99",
+  "ok": true,
+  "day": 11,
+  "award": "遗失碎金×2",
+  "signed_now": false
+ },
+ {
+  "date": "2026-11-25",
+  "account": "账号2·373****25",
+  "game": "原神",
+  "nick": "天***",
+  "uid": "271****38",
+  "ok": true,
+  "day": 12,
+  "award": "炸萝卜丸子×3",
+  "signed_now": false
+ },
+ {
+  "date": "2026-11-25",
+  "account": "账号2·373****25",
+  "game": "崩坏：星穹铁道",
+  "nick": "克***",
+  "uid": "116****23",
+  "ok": true,
+  "day": 12,
+  "award": "凝缩以太×2",
+  "signed_now": false
  }
 ]
