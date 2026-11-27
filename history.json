@@ -460,5 +460,38 @@
   "day": 13,
   "award": "星琼×20",
   "signed_now": false
+ },
+ {
+  "date": "2026-11-27",
+  "account": "账号1·473****48",
+  "game": "崩坏：星穹铁道",
+  "nick": "芜",
+  "uid": "174****99",
+  "ok": true,
+  "day": 13,
+  "award": "星琼×20",
+  "signed_now": true
+ },
+ {
+  "date": "2026-11-27",
+  "account": "账号2·373****25",
+  "game": "原神",
+  "nick": "天***",
+  "uid": "271****38",
+  "ok": true,
+  "day": 14,
+  "award": "摩拉×8000",
+  "signed_now": false
+ },
+ {
+  "date": "2026-11-27",
+  "account": "账号2·373****25",
+  "game": "崩坏：星穹铁道",
+  "nick": "克***",
+  "uid": "116****23",
+  "ok": true,
+  "day": 14,
+  "award": "信用点×5000",
+  "signed_now": false
  }
 ]
